@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('grades', function (Blueprint $table) {
             $table->id();
-            $table->string('semster');
             $table->foreignId('enrollment_id')->constrained();
+             $table->string('grade');
             $table->timestamps();
         });
     }
