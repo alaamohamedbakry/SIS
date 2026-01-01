@@ -17,7 +17,8 @@ class CourseResource extends JsonResource
         return [
             'course_name'=>$this->course_name,
             'course_code'=>$this->course_code,
-            'course_hours'=>$this->course_hours
+            'course_hours'=>$this->course_hours,
+            'instructor_name'=>$this->teacher->user->name,
         ];
     }
 }

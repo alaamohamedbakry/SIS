@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\TeacherController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,34 +23,20 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::prefix('student')->group(function(){
-Route::post('/register',[StudentController::class,'register']);
-Route::post('/login',[StudentController::class,'login']);
-Route::post('/logout',[StudentController::class,'logout'])->middleware('auth:sanctum');
+Route::post('/register',[AuthController::class,'register']);
+Route::post('/login-student',[StudentController::class,'login']);
+Route::post('/login-teacher',[TeacherController::class,'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('students', StudentController::class);
+    Route::post('/logout-student',[StudentController::class,'logout']);
+    Route::post('/logout-teacher',[TeacherController::class,'logout']);
+    Route::apiResource('teachers', TeacherController::class); 
+    Route::apiResource('courses', CourseController::class);
+    Route::apiResource('enrollments', EnrollmentController::class);
+   /*  Route::apiResource('grades', GradeController::class);
+    Route::get('/grades/{student_id}',[GradeController::class,'show']);  */
 });
 
 
-Route::middleware('auth:sanctum')->group(function(){
-Route::get('show/{id}',[StudentController::class,'show']);
-Route::post('store',[EnrollmentController::class,'store']);
-Route::get('/index',[StudentController::class,'index']);
-Route::get('grades/{student_id}',[GradeController::class,'show']);
-});
-Route::prefix('course')->group(function(){
- Route::get('index',[CourseController::class,'index']);
- Route::post('/store',[CourseController::class,'store']);
- Route::post('update/{id}',[CourseController::class,'update']);
- Route::delete('delete/{id}',[CourseController::class,'destroy']);
-});
 
-Route::post('update/{id}',[StudentController::class,'update']);
-Route::delete('delete/{id}',[StudentController::class,'destroy']);
-
-Route::prefix('enrollment')->group(function(){
-    Route::get('index',[EnrollmentController::class,'index']);
-    Route::post('update/{id}',[EnrollmentController::class,'update']);
-    Route::delete('delete/{id}',[EnrollmentController::class,'destroy']);
-
-
-
-});

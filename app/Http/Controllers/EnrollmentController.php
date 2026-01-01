@@ -21,10 +21,7 @@ class EnrollmentController extends Controller
         ]);
     }
 
-    public function show(Request $request)
-    {
-
-    }
+    public function show(Request $request) {}
 
 
 
@@ -34,22 +31,43 @@ class EnrollmentController extends Controller
      */
     public function store(Request $request)
     {
-        $student = auth()->user();
+        $request->validate([
+            'semster' => 'required',
+            'course_id'   => 'nullable|exists:courses,id|required_without:course_code',
+            'course_code' => 'nullable|string|required_without:course_id'
+        ]);
+
+        $user = Auth()->user();
+        if ($user->role != 'student') {
+            return response()->json([
+                'status' => 'failed',
+                'msg' => 'only students can enroll in courses'
+            ], 403);
+        }
+
+        if (!$student = $user->student) {
+            return response()->json([
+                'message' => 'student profile not found'
+            ], 404);
+        }
+
+        $student = $user->student;
+
 
         $course_id = $request->input('course_id');
         $course_code = $request->input('course_code');
 
         $course = Course::where('id', $course_id)
-                        ->orWhere('course_code', $course_code)
-                        ->first();
+            ->orWhere('course_code', $course_code)
+            ->first();
 
         if (!$course) {
             return response()->json(['error' => 'Course not found'], 404);
         }
 
         $existingEnrollment = Enrollment::where('student_id', $student->id)
-                                        ->where('course_id', $course->id)
-                                        ->first();
+            ->where('course_id', $course->id)
+            ->first();
 
         if ($existingEnrollment) {
             return response()->json(['error' => 'Already enrolled'], 409);
@@ -75,15 +93,34 @@ class EnrollmentController extends Controller
     {
         $request->validate([
             'semster' => 'required',
-            'student_id' => 'required|exists:students,id',
-            'course_id' => 'required|exists:courses,id'
         ]);
         try {
-            $enrollment = Enrollment::find($id);
-            $enrollment->semster = $request->semster;
-            $enrollment->student_id = $request->student_id;
-            $enrollment->course_id = $request->course_id;
-            $enrollment->save();
+            $user = Auth()->user();
+            if ($user->role != 'student') {
+                return response()->json([
+                    'status' => 'failed',
+                    'msg' => 'only students can enroll in courses'
+                ], 403);
+            }
+
+            $student = $user->student;
+
+            if (!$student = $user->student) {
+                return response()->json([
+                    'message' => 'student profile not found'
+                ], 404);
+            }
+            $enrollment = Enrollment::findOrFail($id);
+            if ($enrollment->student_id !== $student->id) {
+                return response()->json([
+                    'message' => 'You can only update your own enrollment'
+                ], 403);
+            }
+
+            $enrollment->update([
+                'semester' => $request->semester
+            ]);
+
             return response()->json([
                 'status' => 'done',
                 'enrollment' => $enrollment
@@ -102,7 +139,28 @@ class EnrollmentController extends Controller
     public function destroy(String $id)
     {
         try {
-            $enrollment = Enrollment::find($id);
+            $user = Auth()->user();
+            if ($user->role != 'student') {
+                return response()->json([
+                    'status' => 'failed',
+                    'msg' => 'only students can enroll in courses'
+                ], 403);
+            }
+
+            if (!$student = $user->student) {
+                return response()->json([
+                    'message' => 'student profile not found'
+                ], 404);
+            }
+
+            $student = $user->student;
+            $enrollment = Enrollment::findOrFail($id);
+            if ($enrollment->student_id !== $student->id) {
+                return response()->json([
+                    'message' => 'You can only delete your own enrollment'
+                ], 403);
+            }
+            $enrollment->delete();
             return response()->json([
                 'status' => 'done',
                 'enrollment' => $enrollment

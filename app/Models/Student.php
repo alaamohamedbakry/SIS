@@ -12,13 +12,13 @@ class Student extends Authenticatable
     use HasApiTokens, HasFactory;
 
     protected $guarded = ['id'];
-    
-    public function users()
+
+    public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function courses()
+    public function course()
     {
         return $this->belongsToMany(
             Course::class,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\StudentCollection;
 use App\Models\Student;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -26,11 +27,11 @@ class StudentController extends Controller
             'password'=>'required|string|min:8'
         ]);
         try{
-            $student=Student::firstwhere('email',$request->email);
+            $student=User::firstwhere('email',$request->email);
             if($student && Hash::check($request->password,$student->password)){
                 return response()->json([
                     'status'=>'student logined successfully',
-                    'token'=>$student->createToken('student')->plainTextToken
+                    'token'=>$student->createToken('user')->plainTextToken
                 ]);
             }else{
                 return response()->json([
@@ -50,37 +51,7 @@ class StudentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function register(Request $request)
-    {
-        $request->validate([
-            "first_name" => 'required|string|max:255',
-            "last_name" => 'required|string|max:255',
-            "email" => 'required|email|unique:students,email',
-            "password" => 'required|string|min:8',
-            "student_id" => 'required',
-            "phone_number" => 'required'
-        ]);
-        try {
-            $student = Student::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'student_id' => $request->student_id,
-                'phone_number' => $request->phone_number
-            ]);
-            $token = $student->createToken('student')->plainTextToken;
-             return response()->json([
-                'status'=>'student created successfully',
-                'token'=>$token
-            ],201);
-        } catch (Exception $e) {
-            return response()->json([
-                'status'=>'failed',
-                $e->getMessage()
-            ],401);
-        }
-    }
+
     public function logout(Request $request){
      if($request->user()->currentAccessToken()->delete()){
         return response()->json([
@@ -161,4 +132,6 @@ class StudentController extends Controller
             ],401);
         }
     }
+
+    
 }

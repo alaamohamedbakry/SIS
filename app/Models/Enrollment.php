@@ -18,11 +18,11 @@ class Enrollment extends Model
         return $this->hasMany(Attendance::class,'enrollment_id','id');
     }
 
-    public function students(){
+    public function student(){
         return $this->belongsTo(Student::class,'student_id','id');
     }
 
-    public function courses(){
+    public function course(){
         return $this->belongsTo(Course::class,'course_id','id');
     }
 }

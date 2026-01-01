@@ -10,12 +10,12 @@ class Course extends Model
     use HasFactory;
        protected $guarded=['id'];
 
-    public function teachers()
+    public function teacher()
     {
         return $this->belongsTo(Teacher::class,'teacher_id','id');
     }
 
-        public function students()
+        public function student()
     {
         return $this->belongsToMany(
             Student::class,
