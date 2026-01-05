@@ -24,19 +24,35 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::post('/register',[AuthController::class,'register']);
-Route::post('/login-student',[StudentController::class,'login']);
-Route::post('/login-teacher',[TeacherController::class,'login']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('students', StudentController::class);
-    Route::post('/logout-student',[StudentController::class,'logout']);
-    Route::post('/logout-teacher',[TeacherController::class,'logout']);
-    Route::apiResource('teachers', TeacherController::class); 
-    Route::apiResource('courses', CourseController::class);
-    Route::apiResource('enrollments', EnrollmentController::class);
-   /*  Route::apiResource('grades', GradeController::class);
-    Route::get('/grades/{student_id}',[GradeController::class,'show']);  */
+
+
+
+Route::middleware(['auth:sanctum', 'role:student'])->group(function () {
+
+
+    Route::post('/enrollments', [EnrollmentController::class, 'store']);
+    Route::put('/enrollments/{id}',[EnrollmentController::class,'update']);
+    Route::delete('/enrollments/{course}', [EnrollmentController::class, 'destroy']);
+
+    Route::get('/my-courses', [EnrollmentController::class, 'myCourses']);
+    Route::get('/my-grades', [GradeController::class, 'myGrades']);
 });
 
 
+Route::middleware(['auth:sanctum', 'role:instructor'])->group(function () {
 
+
+    Route::apiResource('courses', CourseController::class);
+
+    Route::post('/grades', [GradeController::class, 'store']);   // add grades
+    Route::get('/courses/{course}/students', [EnrollmentController::class, 'students']);
+});
+
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+
+    Route::apiResource('students', StudentController::class);
+    Route::apiResource('teachers', TeacherController::class);
+});
