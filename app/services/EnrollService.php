@@ -77,4 +77,18 @@ class EnrollService
 
         return $enrollment;
     }
+
+    public function DeleteEnrollment($user, $enrollmentId)
+    {
+        $enrollment = Enrollment::findOrFail($enrollmentId);
+        if ($user->role != 'student') {
+            throw new Exception('un authorized', 403);
+        }
+        if ($enrollment->student_id !== $user->student->id) {
+            throw new Exception('you can only delete your own enroll');
+        }
+        $enrollment->update([
+            'status' => 'dropped'
+        ]);
+    }
 }

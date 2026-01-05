@@ -97,38 +97,10 @@ class EnrollmentController extends Controller
      */
     public function destroy(String $id)
     {
-        try {
-            $user = Auth()->user();
-            if ($user->role != 'student') {
-                return response()->json([
-                    'status' => 'failed',
-                    'msg' => 'only students can enroll in courses'
-                ], 403);
-            }
-
-            if (!$student = $user->student) {
-                return response()->json([
-                    'message' => 'student profile not found'
-                ], 404);
-            }
-
-            $student = $user->student;
-            $enrollment = Enrollment::findOrFail($id);
-            if ($enrollment->student_id !== $student->id) {
-                return response()->json([
-                    'message' => 'You can only delete your own enrollment'
-                ], 403);
-            }
-            $enrollment->delete();
-            return response()->json([
-                'status' => 'done',
-                'enrollment' => $enrollment
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'failed',
-                $e->getMessage()
-            ]);
-        }
+       $this->enrollService->DeleteEnrollment(auth()->user(),$id);
+       return response()->json([
+        'msg'=>'enrollment cancelled successfully'
+       ],200);
+    
     }
 }
