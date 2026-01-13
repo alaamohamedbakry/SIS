@@ -25,6 +25,11 @@ class EnrollmentController extends Controller
      * تسجيل الطالب في كورس
      */
 
+    public function myCourses()
+    {
+        
+    }
+
     public function index()
     {
         $enrollment = Enrollment::all();
@@ -101,6 +106,6 @@ class EnrollmentController extends Controller
        return response()->json([
         'msg'=>'enrollment cancelled successfully'
        ],200);
-    
+
     }
 }

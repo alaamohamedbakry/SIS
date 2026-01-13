@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Grade;
+use App\services\GradeService;
+use Exception;
 use Illuminate\Http\Request;
 
 class GradeController extends Controller
@@ -10,6 +12,11 @@ class GradeController extends Controller
     /**
      * Display a listing of the resource.
      */
+    protected $gradeservice;
+
+    public function __construct(GradeService $gradeService){
+        $this->gradeservice = $gradeService;
+    }
     public function index()
     {
         //
@@ -28,7 +35,27 @@ class GradeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'enrollment_id'=>'required|exists:enrollments,id',
+            'type'=>"required|in:midterm,final,quiz,assignment",
+            'score'=>"required|decimal:0,100"
+        ]);
+
+        try{
+           $grade = $this->gradeservice->AddGrade(auth()->user(),$request->only('enrollment_id','type','score'));
+
+            return response()->json([
+                'msg'=>'grade added successfully',
+                'grade'=>$grade
+            ],200);
+
+        }catch(Exception $e){
+         return response()->json([
+                'msg'=>$e->getMessage(),
+                'status'=>'failed'
+
+            ],400);
+        }
     }
 
     /**

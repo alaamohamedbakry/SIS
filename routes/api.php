@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\EnrollmentController;
@@ -39,6 +40,8 @@ Route::middleware(['auth:sanctum', 'role:student'])->group(function () {
 
     Route::get('/my-courses', [EnrollmentController::class, 'myCourses']);
     Route::get('/my-grades', [GradeController::class, 'myGrades']);
+        Route::post('/attendances',[AttendanceController::class,'store']);
+
 });
 
 
@@ -49,6 +52,11 @@ Route::middleware(['auth:sanctum', 'role:instructor'])->group(function () {
 
     Route::post('/grades', [GradeController::class, 'store']);   // add grades
     Route::get('/courses/{course}/students', [EnrollmentController::class, 'students']);
+    Route::get('/enrollments/{id}/attendances', [AttendanceController::class, 'index']);
+     Route::put('/attendances/{id}',[AttendanceController::class,'update']);
+    Route::delete('/attendances/{course}', [AttendanceController::class, 'destroy']);
+
+
 });
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {

@@ -11,6 +11,24 @@ class EnrollService
 {
     /**
      */
+    public function myCourses($user , $CourseId){
+        if ($user->role != 'student') {
+            throw new Exception('Only students can enroll in courses', 403);
+        }
+
+        $student = $user->student;
+        if (!$student) {
+            throw new Exception('Student profile not found', 404);
+        }
+        $course = Course::findOrFail($CourseId);
+         $enrollment = Enrollment::where('student_id', $student->id)
+            ->where('course_id', $course->id);
+
+            return $enrollment;
+
+
+    }
+
     public function enrollStudent($user, array $data)
     {
         if ($user->role != 'student') {

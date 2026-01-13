@@ -47,7 +47,7 @@ use Symfony\Component\HttpFoundation\Request;
 
      public function DeleteCourse($user , $courseId)
      {
-        $course = Course::findorfail($courseId);
+        $course = Course::findOrFail($courseId);
         if($user->role != 'instructor') {
             throw new Exception('Unauthorized',403);
         }
@@ -56,5 +56,4 @@ use Symfony\Component\HttpFoundation\Request;
         }
         $course->delete();
      }
-
 }

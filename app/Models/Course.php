@@ -8,18 +8,22 @@ use Illuminate\Database\Eloquent\Model;
 class Course extends Model
 {
     use HasFactory;
-       protected $guarded=['id'];
+    protected $guarded = ['id'];
 
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class,'teacher_id','id');
+        return $this->belongsTo(Teacher::class, 'teacher_id', 'id');
     }
 
-        public function student()
+    public function student()
     {
         return $this->belongsToMany(
             Student::class,
             'enrollments'
         );
+    }
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
     }
 }
